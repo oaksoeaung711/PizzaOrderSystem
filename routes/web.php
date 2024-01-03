@@ -1,7 +1,8 @@
 <?php
 
+use App\Http\Controllers\AuthController;
+use App\Http\Controllers\CategoryController;
 use Illuminate\Support\Facades\Route;
-
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -13,6 +14,21 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::get('/', function () {
-    return view('welcome');
+Route::get('/login',[AuthController::class,'loginIndex'])->name('login.index');
+Route::get('/register',[AuthController::class,'registerIndex'])->name('register.index');
+
+Route::middleware(['auth:sanctum',config('jetstream.auth_session'),'verified',])->group(function () {
+    Route::prefix('admin')->middleware('admin.auth')->group(function(){
+        Route::get('/',function(){
+            return view('admin.home');
+        });
+
+        Route::resource("/categories",CategoryController::class,["as"=>"admin"]);
+    });
+
+    Route::prefix('user')->middleware('user.auth')->group(function(){
+        Route::get('/',function(){
+            return view('home');
+        });
+    });
 });
